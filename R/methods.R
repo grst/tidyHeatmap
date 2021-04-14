@@ -43,6 +43,8 @@ InputHeatmap<-setClass(
 #' @importFrom methods show
 #' @importFrom tibble rowid_to_column
 #' @importFrom grid grid.points
+#' @importFrom purrr when
+#' @importFrom ComplexHeatmap Heatmap
 setMethod("show", "InputHeatmap", function(object){
 	
 	# Fix CRAN notes
@@ -55,9 +57,9 @@ setMethod("show", "InputHeatmap", function(object){
 			object@top_annotation %>% annot_to_list()
 		) %>%
 		list_drop_null() %>%
-		ifelse_pipe(
-			(.) %>% length %>% gt(0) && !is.null((.)), # is.null needed for check Windows CRAN servers
-			~ do.call("columnAnnotation", .x ),
+		when(
+			(.) %>% length %>% gt(0) && !is.null((.)) ~ 
+				do.call("columnAnnotation", .x ), # is.null needed for check Windows CRAN servers
 			~ NULL
 		)
 	
@@ -67,9 +69,9 @@ setMethod("show", "InputHeatmap", function(object){
 			object@left_annotation %>% annot_to_list()
 		) %>%
 		list_drop_null()  %>%
-		ifelse_pipe(
-			(.) %>% length %>% gt(0) && !is.null((.)), # is.null needed for check Windows CRAN servers
-			~ do.call("rowAnnotation", .x ),
+		when(
+			(.) %>% length %>% gt(0) && !is.null((.)) ~ 
+				do.call("rowAnnotation", .x ), # is.null needed for check Windows CRAN servers
 			~ NULL
 		)
 	
@@ -92,13 +94,9 @@ setMethod("show", "InputHeatmap", function(object){
 			)
 	}
 	
-	
+	print("This show function is called")
+	do.call("Heatmap", object@input)
 
-					
-
-	
-	
-	show(do.call(Heatmap, object@input))
 } )
 
 #' Creates a  `InputHeatmap` object from `tbl_df` on evaluation creates a `ComplexHeatmap`
